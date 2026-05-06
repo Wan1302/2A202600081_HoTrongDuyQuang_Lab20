@@ -1,136 +1,69 @@
-# Báo cáo benchmark
+# Báo Cáo Benchmark
 
-## Tóm tắt
+## Tóm Tắt
 
-Báo cáo này so sánh hai cách triển khai cho cùng một bài toán research assistant:
+Báo cáo này so sánh hai cách chạy của hệ thống research assistant:
 
-- **Single-agent baseline**: một lần gọi `gpt-4o-mini` xử lý toàn bộ truy vấn.
-- **Multi-agent workflow**: Supervisor điều phối qua Researcher, Analyst, Writer và Critic.
+- **Single-agent baseline**: một lần gọi OpenAI `gpt-4o-mini` xử lý toàn bộ truy vấn.
+- **Multi-agent workflow**: Supervisor điều phối qua `Researcher -> Analyst -> Writer -> Critic -> done`.
 
-Tất cả các lần chạy benchmark đều hoàn thành thành công với **failure rate 0%**. Workflow multi-agent chậm hơn và dùng nhiều token hơn, nhưng đổi lại có handoff rõ ràng, trace chi tiết, citation coverage đo được và bước Critic để fact-check final answer.
+Lần chạy benchmark mới nhất tạo log trong `runs/baseline/` và `runs/multi-agent/`. Hệ thống cũng ghi trace lên LangSmith project `multi-agent-research-lab`.
 
-## Môi trường chạy
-- Model: `gpt-4o-mini`
-- Runtime: local Python virtual environment
-- Trace: local JSON trace và LangSmith hosted trace
-- Các lệnh kiểm tra:
-  - `python -m pytest`: 5 passed
-  - `python -m ruff check src tests`: all checks passed
-  - `python -m mypy src`: success, no issues in 27 source files
+## Kết Quả Benchmark Mới Nhất
 
-## Bảng kết quả
-
-| Run | Latency (s) | Cost (USD) | Tokens | Citation coverage | Failure rate | Quality | Notes |
+| Run | Latency (s) | Cost (USD) | Tokens | Citation coverage | Failure rate | Quality | Ghi chú |
 |---|---:|---:|---:|---:|---:|---:|---|
-| baseline-q1 | 13.60 | 0.0005 | 972 | N/A | 0% | 7.0 | completed |
-| multi-agent-q1 | 32.28 | 0.0014 | 4949 | 20% | 0% | 8.5 | route=researcher > analyst > writer > critic > done |
-| baseline-q2 | 9.49 | 0.0004 | 800 | N/A | 0% | 7.5 | completed |
-| multi-agent-q2 | 32.60 | 0.0014 | 4925 | 100% | 0% | 9.0 | route=researcher > analyst > writer > critic > done |
-| baseline-q3 | 8.38 | 0.0003 | 671 | N/A | 0% | 7.5 | completed |
-| multi-agent-q3 | 30.13 | 0.0015 | 5305 | 100% | 0% | 9.0 | route=researcher > analyst > writer > critic > done |
+| baseline-q1 | 14.02 | 0.0005 | 932 | N/A | 0% | 7.0 | completed |
+| multi-agent-q1 | 29.68 | 0.0013 | 4699 | 20% | 0% | 8.5 | researcher > analyst > writer > critic > done |
+| baseline-q2 | 11.51 | 0.0004 | 762 | N/A | 0% | 7.5 | completed |
+| multi-agent-q2 | 28.75 | 0.0014 | 5021 | 100% | 0% | 9.0 | researcher > analyst > writer > critic > done |
+| baseline-q3 | 12.92 | 0.0004 | 707 | N/A | 0% | 7.5 | completed |
+| multi-agent-q3 | 33.01 | 0.0014 | 5140 | 100% | 0% | 9.0 | researcher > analyst > writer > critic > done |
 
-Quality là điểm tự đánh giá trước peer review theo thang 0-10. Điểm này xét đến độ đúng trọng tâm, cấu trúc câu trả lời, citation coverage, traceability, failure handling và bước fact-check của Critic.
-
-## So sánh trung bình
+## Trung Bình
 
 | Metric | Single-agent avg | Multi-agent avg | Nhận xét |
 |---|---:|---:|---|
-| Latency | 10.49s | 31.67s | Multi-agent chậm hơn khoảng 3.0 lần vì có nhiều LLM calls và thêm Critic. |
-| Cost | 0.0004 USD | 0.0014 USD | Multi-agent tốn chi phí khoảng 3.6 lần trong lần chạy này. |
-| Tokens | 814 | 5060 | Multi-agent dùng khoảng 6.2 lần token do có research, analysis, writing và critic notes. |
-| Citation coverage | N/A | 73.3% | Baseline không dùng structured sources; multi-agent đo được coverage nguồn. |
-| Failure rate | 0% | 0% | Cả hai cách đều chạy thành công. |
+| Latency | 12.82s | 30.48s | Multi-agent chậm hơn khoảng 2.4 lần |
+| Cost | 0.0004 USD | 0.0014 USD | Multi-agent tốn chi phí khoảng 3.2 lần |
+| Tokens | 800 | 4953 | Multi-agent dùng nhiều token hơn do có nhiều agent |
+| Citation coverage | N/A | 73.3% | Multi-agent đo được citation coverage nhờ Critic |
+| Failure rate | 0% | 0% | Cả hai chế độ đều hoàn thành thành công |
 
-## Phân tích kết quả
+## Phân Tích
 
-Baseline nhanh hơn và rẻ hơn vì chỉ dùng một lần gọi LLM. Cách này phù hợp khi truy vấn đơn giản, rủi ro thấp hoặc không cần auditability cao. Tuy nhiên, baseline khó kiểm tra hơn vì không tách riêng research notes, analysis notes, final answer và fact-check.
+Baseline nhanh hơn và rẻ hơn vì chỉ gọi một LLM cho toàn bộ tác vụ. Tuy nhiên, baseline không có research notes, analysis notes, critic notes, route history hay citation coverage nên khó kiểm tra chất lượng từng bước.
 
-Workflow multi-agent tăng latency, cost và token usage, đặc biệt sau khi thêm Critic. Đây là tradeoff có chủ đích: hệ thống có thêm một bước kiểm tra final answer trước khi kết thúc. Critic giúp phát hiện unsupported claims, overstated claims và vấn đề citation, điều mà baseline không expose rõ.
+Multi-agent có latency, token và cost cao hơn vì chạy nhiều node. Đổi lại, workflow thể hiện rõ vai trò của từng agent, có handoff qua shared state, có trace từng bước, có local run logs và có Critic để fact-check final answer. Đây là tradeoff phù hợp với bài lab vì yêu cầu không chỉ là tạo câu trả lời, mà còn phải giải thích được quá trình tạo câu trả lời.
 
-Citation coverage của multi-agent đạt trung bình 73.3%. Query 1 vẫn chỉ đạt 20% vì Writer chủ yếu cite nguồn Microsoft GraphRAG chính. Tuy nhiên, Critic đã phát hiện vấn đề này và ghi rõ citation coverage thấp, đồng thời chỉ ra các claim cần qualify hoặc cần thêm evidence. Query 2 và query 3 đạt 100% citation coverage, cho thấy workflow có khả năng sử dụng source tốt hơn ở các task phù hợp.
+Query GraphRAG có citation coverage thấp nhất, chỉ 20%, vì Writer chủ yếu dựa vào nguồn Microsoft GraphRAG trực tiếp. Critic đã phát hiện điểm này và cảnh báo các claim hơi mạnh như “significantly enhances” hoặc “powerful tool” khi chưa có comparative metrics. Đây là minh chứng cho giá trị của Critic: hệ thống tự đánh dấu điểm yếu thay vì chỉ trả lời một chiều.
 
-## Giải thích trace
+## Trace Và Log
 
-Trace đại diện cho query GraphRAG đi theo route:
+Trace được ghi ở ba nơi:
 
-```text
-workflow.started
-supervisor.route -> researcher
-researcher.completed
-supervisor.route -> analyst
-analyst.completed
-supervisor.route -> writer
-writer.completed
-supervisor.route -> critic
-critic.completed
-supervisor.route -> done
-workflow.completed
-```
+- `reports/multi_agent_trace.json`: trace đại diện mới nhất cho query GraphRAG.
+- `runs/baseline/*.json`: local log cho từng lần chạy baseline.
+- `runs/multi-agent/*.json`: local log cho từng lần chạy multi-agent.
 
-Các giá trị cụ thể từ `reports/multi_agent_trace.json`:
+LangSmith hosted trace nằm trên website LangSmith, trong workspace cá nhân và project `multi-agent-research-lab`. Hai ảnh minh chứng đã được lưu trong folder `reports`:
 
-- Route history: `researcher > analyst > writer > critic > done`
-- Số iteration: 5
-- Số nguồn thu thập: 5
-- Researcher usage: 624 tokens, 0.00016605 USD
-- Analyst usage: 719 tokens, 0.0002595 USD
-- Writer usage: 1578 tokens, 0.0005598 USD
-- Critic usage: 2043 tokens, 0.00045315 USD
-- Citation coverage query GraphRAG: 20%
-- Errors: không có
+- `reports/langsmith_run_list.png`: danh sách run trong project.
+- `reports/langsmith_run_tree.png`: waterfall trace của `multi_agent_workflow`.
 
-Critic fact-check đã ghi nhận:
+Sau lần sửa mới nhất, các span trên LangSmith đã có input/output đầy đủ hơn:
 
-- Final answer có các claim được support bởi source Microsoft Research.
-- Citation `[1]` khớp source list.
-- Citation coverage thấp vì final answer chủ yếu dùng source `[1]`.
-- Một số claim như “potentially outperforms traditional summarization methods” bị đánh dấu là overstated vì không có performance metrics hoặc comparative analysis.
-- Critic đề xuất qualify hoặc loại bỏ các claim vượt quá evidence.
+- `researcher` output có `research_notes` và `sources`.
+- `analyst` input có `research_notes`, output có `analysis_notes`.
+- `writer` input có `research_notes`, `analysis_notes`, `sources`, output có `final_answer`.
+- `critic` input có `final_answer` và evidence, output có `critic_notes`.
 
-## Minh chứng LangSmith
+## Failure Mode
 
-Trace được ghi ở hai nơi:
+Không có runtime failure trong benchmark mới nhất. Failure mode chính là chất lượng evidence chưa đồng đều:
 
-- Local JSON trace trong `reports/multi_agent_trace.json`.
-- LangSmith hosted trace trong project `multi-agent-research-lab`.
+- Query 1 có citation coverage thấp.
+- Một số claim của Writer cần được qualify kỹ hơn.
+- Source corpus hiện tại có một nguồn GraphRAG trực tiếp, các nguồn còn lại thiên về agent workflow, orchestration và tracing.
 
-Minh chứng LangSmith nằm trong folder `reports`:
-
-- [langsmith_run_list.png](langsmith_run_list.png): danh sách runs có root run `multi_agent_workflow`.
-- [langsmith_run_tree.png](langsmith_run_tree.png): waterfall trace gồm Supervisor, Researcher, Analyst, Writer và Critic.
-
-Trên LangSmith, root run là `multi_agent_workflow`. Waterfall mới gồm:
-
-```text
-supervisor
-researcher
-supervisor
-analyst
-supervisor
-writer
-supervisor
-critic
-supervisor
-```
-
-LangSmith cũng hiển thị input query, graph nodes, `max_iterations=6`, `timeout_seconds=60`, latency tổng và latency từng worker. Trace này chứng minh workflow multi-agent có orchestration thật, không chỉ là một prompt đơn lẻ.
-
-## Failure mode
-
-Không có runtime failure trong benchmark. Failure mode chính quan sát được là **citation coverage thấp ở query 1** và một số claim trong final answer bị Critic đánh giá là vượt quá evidence.
-
-Nguyên nhân:
-
-- Source corpus có một nguồn GraphRAG trực tiếp, các nguồn còn lại thiên về agent workflow/tracing.
-- Writer tập trung vào source `[1]`, nguồn liên quan nhất cho GraphRAG.
-- Một số phrasing trong final answer như “potentially outperforms” cần comparative evidence nhưng source hiện tại chưa cung cấp.
-
-Cách khắc phục:
-
-- Siết prompt của Writer để tránh claim so sánh nếu không có performance metrics.
-- Bổ sung search/live web hoặc thêm source GraphRAG chuyên sâu hơn.
-- Giữ Critic là bước bắt buộc sau Writer để phát hiện unsupported claims trước khi nộp final answer.
-
-## Kết luận
-
-Multi-agent không phải cách nhanh nhất hoặc rẻ nhất, nhưng là phương án phù hợp hơn cho bài lab này. Nó thể hiện rõ role clarity, shared state handoff, guardrail, traceability, benchmark-driven evaluation và bonus Critic fact-check. Kết quả benchmark xác nhận tradeoff dự kiến: multi-agent tốn thêm latency/cost/token, nhưng dễ inspect, debug và đánh giá hơn cho các task research phức tạp.
+Cách cải thiện tiếp theo là mở rộng source corpus hoặc thêm live search để Researcher có nhiều nguồn GraphRAG chuyên sâu hơn.

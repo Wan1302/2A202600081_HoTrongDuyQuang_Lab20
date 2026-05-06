@@ -91,11 +91,11 @@ class MultiAgentWorkflow:
                 "supervisor",
                 {"iteration": state.iteration},
                 run_type="chain",
-                inputs={"state": _state_summary(state)},
+                inputs=_supervisor_inputs(state),
                 settings=self.settings,
             ) as supervisor_span:
                 state = self.supervisor.run(state)
-                supervisor_span["outputs"] = {"next_route": state.route_history[-1]}
+                supervisor_span["outputs"] = _supervisor_outputs(state)
 
             route = state.route_history[-1]
             if route == "done":
@@ -111,11 +111,11 @@ class MultiAgentWorkflow:
                     route,
                     {"iteration": state.iteration},
                     run_type="chain",
-                    inputs={"state": _state_summary(state)},
+                    inputs=_agent_inputs(route, state),
                     settings=self.settings,
                 ) as agent_span:
                     state = agent.run(state)
-                    agent_span["outputs"] = _state_summary(state)
+                    agent_span["outputs"] = _agent_outputs(route, state)
             except LabError as exc:
                 state.errors.append(f"{route} failed: {exc}")
                 state.add_trace_event("workflow.agent_failed", {"route": route, "error": str(exc)})
@@ -160,3 +160,70 @@ def _state_summary(state: ResearchState) -> dict[str, object]:
         "has_critic_notes": state.critic_notes is not None,
         "error_count": len(state.errors),
     }
+
+
+def _supervisor_inputs(state: ResearchState) -> dict[str, object]:
+    data = _state_summary(state)
+    data.update(
+        {
+            "query": state.request.query,
+            "research_notes": state.research_notes,
+            "analysis_notes": state.analysis_notes,
+            "final_answer": state.final_answer,
+            "critic_notes": state.critic_notes,
+            "errors": list(state.errors),
+        }
+    )
+    return data
+
+
+def _supervisor_outputs(state: ResearchState) -> dict[str, object]:
+    return {
+        "next_route": state.route_history[-1],
+        "iteration": state.iteration,
+        "route_history": list(state.route_history),
+    }
+
+
+def _agent_inputs(route: str, state: ResearchState) -> dict[str, object]:
+    data = _state_summary(state)
+    data["query"] = state.request.query
+
+    if route == "researcher":
+        data["max_sources"] = state.request.max_sources
+        data["audience"] = state.request.audience
+    elif route == "analyst":
+        data["research_notes"] = state.research_notes
+        data["sources"] = _serialized_sources(state)
+    elif route == "writer":
+        data["research_notes"] = state.research_notes
+        data["analysis_notes"] = state.analysis_notes
+        data["sources"] = _serialized_sources(state)
+    elif route == "critic":
+        data["research_notes"] = state.research_notes
+        data["analysis_notes"] = state.analysis_notes
+        data["final_answer"] = state.final_answer
+        data["sources"] = _serialized_sources(state)
+
+    return data
+
+
+def _agent_outputs(route: str, state: ResearchState) -> dict[str, object]:
+    data = _state_summary(state)
+
+    if route == "researcher":
+        data["research_notes"] = state.research_notes
+        data["sources"] = _serialized_sources(state)
+    elif route == "analyst":
+        data["analysis_notes"] = state.analysis_notes
+    elif route == "writer":
+        data["final_answer"] = state.final_answer
+    elif route == "critic":
+        data["critic_notes"] = state.critic_notes
+
+    data["errors"] = list(state.errors)
+    return data
+
+
+def _serialized_sources(state: ResearchState) -> list[dict[str, object]]:
+    return [source.model_dump() for source in state.sources]

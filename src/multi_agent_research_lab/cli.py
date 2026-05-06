@@ -1,5 +1,8 @@
 """Command-line entrypoint for the lab."""
 
+import re
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -7,6 +10,8 @@ from rich.console import Console
 from rich.panel import Panel
 
 from multi_agent_research_lab.core.config import get_settings
+from multi_agent_research_lab.core.errors import ValidationError
+from multi_agent_research_lab.core.guardrails import validate_research_query
 from multi_agent_research_lab.core.schemas import AgentName, AgentResult, ResearchQuery
 from multi_agent_research_lab.core.state import ResearchState
 from multi_agent_research_lab.evaluation.benchmark import run_benchmark
@@ -35,6 +40,7 @@ def _init() -> None:
 def run_single_agent(query: str) -> ResearchState:
     """Run the real LLM single-agent baseline."""
 
+    _ensure_researchable(query)
     request = ResearchQuery(query=query)
     state = ResearchState(request=request)
     settings = get_settings()
@@ -103,15 +109,40 @@ def run_single_agent(query: str) -> ResearchState:
             "cost_usd": response.cost_usd,
         },
     )
+    _write_run_log("baseline", state)
     return state
 
 
 def run_multi_agent(query: str) -> ResearchState:
-    """Run the Supervisor -> Researcher -> Analyst -> Writer workflow."""
+    """Run the Supervisor -> Researcher -> Analyst -> Writer -> Critic workflow."""
 
+    _ensure_researchable(query)
     state = ResearchState(request=ResearchQuery(query=query))
     workflow = MultiAgentWorkflow()
-    return workflow.run(state)
+    result = workflow.run(state)
+    _write_run_log("multi-agent", result)
+    return result
+
+
+def _ensure_researchable(query: str) -> None:
+    decision = validate_research_query(query)
+    if not decision.allowed:
+        raise ValidationError(f"Input rejected by research guardrail: {decision.reason}")
+
+
+def _write_run_log(kind: str, state: ResearchState) -> Path:
+    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+    slug = _slugify(state.request.query)
+    path = Path("runs") / kind / f"{timestamp}_{slug}.json"
+    state.add_trace_event("run_log.written", {"path": str(path)})
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(state.model_dump_json(indent=2), encoding="utf-8")
+    return path
+
+
+def _slugify(text: str) -> str:
+    normalized = re.sub(r"[^a-zA-Z0-9]+", "-", text.lower()).strip("-")
+    return normalized[:60] or "run"
 
 
 @app.command()
@@ -121,7 +152,11 @@ def baseline(
     """Run the real single-agent baseline."""
 
     _init()
-    result = run_single_agent(query)
+    try:
+        result = run_single_agent(query)
+    except ValidationError as exc:
+        console.print(Panel.fit(str(exc), title="Input Guardrail", style="yellow"))
+        raise typer.Exit(code=1) from exc
     console.print(Panel.fit(result.final_answer or "", title="Single-Agent Baseline"))
 
 
@@ -132,7 +167,11 @@ def multi_agent(
     """Run the multi-agent workflow."""
 
     _init()
-    result = run_multi_agent(query)
+    try:
+        result = run_multi_agent(query)
+    except ValidationError as exc:
+        console.print(Panel.fit(str(exc), title="Input Guardrail", style="yellow"))
+        raise typer.Exit(code=1) from exc
     console.print(result.model_dump_json(indent=2))
 
 
