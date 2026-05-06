@@ -75,6 +75,85 @@ reports/personal_report.md
 reports/multi_agent_trace.json
 ```
 
+## Kiến trúc multi-agent
+
+Workflow dùng mô hình supervisor-router với shared state. Supervisor không tự viết nội dung, mà chỉ quyết định node tiếp theo dựa trên trạng thái hiện tại.
+
+```text
+User query
+   |
+   v
+Input guardrail
+   |
+   v
+ResearchState
+   |
+   v
+Supervisor
+   |
+   +--> Researcher --> Supervisor
+   |        |
+   |        +--> sources + research_notes
+   |
+   +--> Analyst --> Supervisor
+   |        |
+   |        +--> analysis_notes
+   |
+   +--> Writer --> Supervisor
+   |        |
+   |        +--> final_answer
+   |
+   +--> Critic --> Supervisor
+   |        |
+   |        +--> critic_notes + citation coverage
+   |
+   +--> done
+```
+
+### Vai trò từng agent
+
+| Agent | Vai trò | Input chính | Output chính |
+|---|---|---|---|
+| Supervisor | Chọn route tiếp theo và dừng workflow khi đủ điều kiện | `ResearchState` | `route_history`, route decision |
+| Researcher | Tìm sources bằng Tavily hoặc local fallback, rồi viết research notes | query, audience, `max_sources` | `sources`, `research_notes` |
+| Analyst | Phân tích evidence thành luận điểm và rủi ro | query, sources, research notes | `analysis_notes` |
+| Writer | Viết final answer cho người dùng, bắt buộc citation cho claim quan trọng | research notes, analysis notes, sources | `final_answer` |
+| Critic | Fact-check final answer và đo citation coverage | final answer, sources, notes | `critic_notes` |
+
+### Shared state
+
+Các agent không truyền dữ liệu qua prompt rời rạc mà đọc/ghi vào `ResearchState`:
+
+```text
+request
+iteration
+route_history
+sources
+research_notes
+analysis_notes
+final_answer
+critic_notes
+agent_results
+trace
+errors
+```
+
+Thiết kế này giúp trace được toàn bộ handoff: agent nào chạy, input là gì, output là gì, token/cost bao nhiêu và vì sao Supervisor chọn route tiếp theo.
+
+### Điều kiện dừng
+
+Supervisor route theo thứ tự logic:
+
+```text
+thiếu research_notes -> researcher
+thiếu analysis_notes -> analyst
+thiếu final_answer -> writer
+thiếu critic_notes -> critic
+có final_answer và critic_notes -> done
+```
+
+Workflow còn có `MAX_ITERATIONS` và `TIMEOUT_SECONDS` để tránh chạy vô hạn.
+
 ## Cấu trúc repo chính
 
 ```text
