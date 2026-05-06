@@ -28,6 +28,11 @@ class WriterAgent(BaseAgent):
                 "from shared state.\n"
                 "- Write for the requested audience.\n"
                 "- Use numbered citations like [1] for evidence-backed claims.\n"
+                "- Every substantive claim about a method, benefit, risk, tradeoff, "
+                "or production recommendation must include at least one source citation.\n"
+                "- If a claim is useful but not directly supported by the sources, mark it as "
+                "uncertain instead of presenting it as fact.\n"
+                "- Prefer several short cited claims over uncited general paragraphs.\n"
                 "- Be direct, structured, and explicit about uncertainty.\n"
                 "</rules>\n\n"
                 "<tools_instructions>\n"
@@ -35,11 +40,14 @@ class WriterAgent(BaseAgent):
                 "that you performed new search or verification.\n"
                 "</tools_instructions>\n\n"
                 "<response_format>\n"
-                "Return the final answer with concise sections and a short Sources section.\n"
+                "Return the final answer with concise sections. Each paragraph or bullet that "
+                "contains evidence-backed content should include citations such as [1] or [2]. "
+                "End with a short Sources section mapping citation numbers to titles.\n"
                 "</response_format>\n\n"
                 "<constraints>\n"
                 "Do not invent facts, URLs, or citations. Do not cite a source unless it appears "
-                "in the available source list.\n"
+                "in the available source list. Do not submit an answer with uncited substantive "
+                "claims when sources are available.\n"
                 "</constraints>"
             ),
             user_prompt=(
@@ -48,7 +56,9 @@ class WriterAgent(BaseAgent):
                 f"Research notes:\n{state.research_notes or 'None'}\n\n"
                 f"Analysis notes:\n{state.analysis_notes or 'None'}\n\n"
                 f"Available sources:\n{_format_source_list(state.sources)}\n\n"
-                "Write the final response. Include a short 'Sources' section."
+                "Write the final response. Include citations throughout the answer, not only "
+                "in the Sources section. If evidence is insufficient for a claim, explicitly "
+                "label it as uncertain. Include a short 'Sources' section."
             ),
         )
         state.final_answer = response.content

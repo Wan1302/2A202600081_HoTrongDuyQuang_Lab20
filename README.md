@@ -12,7 +12,7 @@ Model mặc định dùng trong bài: `gpt-4o-mini`.
 ### Core workflow
 
 - `SupervisorAgent`: route theo shared state và guardrails.
-- `ResearcherAgent`: thu thập sources từ local corpus và tạo research notes có citation.
+- `ResearcherAgent`: thu thập sources bằng Tavily nếu có `TAVILY_API_KEY`, fallback về local corpus nếu không có key hoặc Tavily lỗi, rồi tạo research notes có citation.
 - `AnalystAgent`: phân tích research notes thành thesis, key claims, tradeoffs, risks và confidence.
 - `WriterAgent`: viết final answer có citation.
 - `CriticAgent`: fact-check final answer, citation usage và unsupported claims.
@@ -25,6 +25,7 @@ researcher > analyst > writer > critic > done
 ### LLM và tracing
 
 - `LLMClient`: gọi OpenAI thật qua `OPENAI_API_KEY`.
+- `SearchClient`: gọi Tavily Search API khi cấu hình `TAVILY_API_KEY`; nếu không có key thì dùng deterministic local corpus để bài lab vẫn reproducible.
 - Retry OpenAI call tối đa 3 lần với exponential backoff.
 - Timeout theo `TIMEOUT_SECONDS`.
 - Local JSON trace trong `ResearchState.trace`.
@@ -165,6 +166,14 @@ LANGSMITH_PROJECT=multi-agent-research-lab
 LANGSMITH_ENDPOINT=https://api.smith.langchain.com
 ```
 
+Nếu muốn Researcher search web thật bằng Tavily:
+
+```text
+TAVILY_API_KEY=your_tavily_api_key_here
+```
+
+Khi biến này có giá trị, Researcher sẽ gọi Tavily Search API. Khi biến này trống hoặc Tavily gặp lỗi, hệ thống tự fallback về local corpus.
+
 Không commit `.env`.
 
 ## Lệnh cần chạy
@@ -236,12 +245,14 @@ reports/benchmark_report.md
 
 | Run | Latency (s) | Cost (USD) | Tokens | Citation coverage | Failure rate |
 |---|---:|---:|---:|---:|---:|
-| baseline-q1 | 17.51 | 0.0005 | 1027 | N/A | 0% |
-| multi-agent-q1 | 35.12 | 0.0015 | 5098 | 20% | 0% |
-| baseline-q2 | 10.38 | 0.0003 | 696 | N/A | 0% |
-| multi-agent-q2 | 34.47 | 0.0015 | 5267 | 100% | 0% |
-| baseline-q3 | 10.27 | 0.0003 | 700 | N/A | 0% |
-| multi-agent-q3 | 32.17 | 0.0015 | 5260 | 80% | 0% |
+| baseline-q1 | 14.99 | 0.0005 | 994 | N/A | 0% |
+| multi-agent-q1 | 30.28 | 0.0020 | 7588 | 80% | 0% |
+| baseline-q2 | 12.40 | 0.0004 | 746 | N/A | 0% |
+| multi-agent-q2 | 25.36 | 0.0018 | 7378 | 60% | 0% |
+| baseline-q3 | 14.24 | 0.0004 | 736 | N/A | 0% |
+| multi-agent-q3 | 25.36 | 0.0019 | 7845 | 100% | 0% |
+
+Lần benchmark này dùng Tavily live search cho Researcher khi `.env` có `TAVILY_API_KEY` và dùng Writer prompt mới bắt buộc citation cho các claim quan trọng.
 
 Route multi-agent:
 

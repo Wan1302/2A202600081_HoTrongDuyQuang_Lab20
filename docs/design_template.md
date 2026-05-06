@@ -20,10 +20,10 @@ Single-agent nhanh và đơn giản, nhưng dễ bị quá tải vì phải làm
 | Agent | Responsibility | Input | Output | Failure mode |
 |---|---|---|---|---|
 | Supervisor | Kiểm tra shared state và chọn route tiếp theo: researcher, analyst, writer, critic hoặc done | `ResearchState` gồm query, notes, final answer, critic notes, errors, iteration | Cập nhật `route_history`, `iteration`, trace và `AgentResult` | Sai route, lặp quá nhiều, hoặc bỏ qua bước cần thiết |
-| Researcher | Thu thập sources và tạo research notes có citation | Query, audience, `max_sources`, local source corpus | `sources`, `research_notes`, trace token/cost | Source chưa đủ liên quan, notes thiếu evidence, LLM/API fail |
+| Researcher | Thu thập sources và tạo research notes có citation | Query, audience, `max_sources`, Tavily live search hoặc local fallback corpus | `sources`, `research_notes`, trace token/cost | Source chưa đủ liên quan, notes thiếu evidence, search/LLM/API fail |
 | Analyst | Biến research notes thành thesis, key claims, tradeoffs, risks và confidence | Query, audience, research notes, sources | `analysis_notes`, trace token/cost | Phân tích quá chung chung, claim vượt quá evidence, mất citation |
 | Writer | Viết final answer từ research notes, analysis notes và sources | Query, audience, research notes, analysis notes, sources | `final_answer`, trace token/cost | Hallucination, citation thiếu, phrasing quá mạnh so với evidence |
-| Critic | Fact-check final answer, citation usage và unsupported claims | Final answer, sources, research notes, analysis notes | `critic_notes`, citation coverage, fact-check findings | Quá nghiêm khắc, cảnh báo thiếu evidence khi source corpus còn hạn chế |
+| Critic | Fact-check final answer, citation usage và unsupported claims | Final answer, sources, research notes, analysis notes | `critic_notes`, citation coverage, fact-check findings | Quá nghiêm khắc, cảnh báo thiếu evidence khi source set còn hạn chế |
 
 ## Shared state
 
@@ -102,16 +102,16 @@ Quality được đánh giá theo rubric 0-10:
 - Benchmark: 0-2
 - Trace explanation: 0-2
 
-Kết quả benchmark mới sau khi thêm Critic:
+Kết quả benchmark mới sau khi thêm Tavily và siết Writer prompt:
 
 | Run | Latency (s) | Cost (USD) | Tokens | Citation coverage | Failure rate |
 |---|---:|---:|---:|---:|---:|
-| baseline-q1 | 13.60 | 0.0005 | 972 | N/A | 0% |
-| multi-agent-q1 | 32.28 | 0.0014 | 4949 | 20% | 0% |
-| baseline-q2 | 9.49 | 0.0004 | 800 | N/A | 0% |
-| multi-agent-q2 | 32.60 | 0.0014 | 4925 | 100% | 0% |
-| baseline-q3 | 8.38 | 0.0003 | 671 | N/A | 0% |
-| multi-agent-q3 | 30.13 | 0.0015 | 5305 | 100% | 0% |
+| baseline-q1 | 14.99 | 0.0005 | 994 | N/A | 0% |
+| multi-agent-q1 | 30.28 | 0.0020 | 7588 | 80% | 0% |
+| baseline-q2 | 12.40 | 0.0004 | 746 | N/A | 0% |
+| multi-agent-q2 | 25.36 | 0.0018 | 7378 | 60% | 0% |
+| baseline-q3 | 14.24 | 0.0004 | 736 | N/A | 0% |
+| multi-agent-q3 | 25.36 | 0.0019 | 7845 | 100% | 0% |
 
 ## Trace evidence
 

@@ -172,7 +172,7 @@ def multi_agent(
     except ValidationError as exc:
         console.print(Panel.fit(str(exc), title="Input Guardrail", style="yellow"))
         raise typer.Exit(code=1) from exc
-    console.print(result.model_dump_json(indent=2))
+    console.print(result.model_dump_json(indent=2, ensure_ascii=True))
 
 
 @app.command()

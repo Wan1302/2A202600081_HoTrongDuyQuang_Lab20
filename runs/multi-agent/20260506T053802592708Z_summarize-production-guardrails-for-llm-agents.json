@@ -1,0 +1,295 @@
+{
+  "request": {
+    "query": "Summarize production guardrails for LLM agents",
+    "max_sources": 5,
+    "audience": "technical learners"
+  },
+  "iteration": 5,
+  "route_history": [
+    "researcher",
+    "analyst",
+    "writer",
+    "critic",
+    "done"
+  ],
+  "sources": [
+    {
+      "title": "AI Guardrails — Production LLM Safety Guide (2026)",
+      "url": "https://myengineeringpath.dev/genai-engineer/ai-guardrails/",
+      "snippet": "# AI Guardrails — Production LLM Safety Guide (2026). This **AI guardrails** guide covers the full production safety stack for LLM applications — from input validation to output filtering. We compare NeMo Guardrails, Guardrails AI, and LLM Guard with working Python code, latency benchmarks, and the trade-offs between strict and permissive guardrail configurations. Every production LLM application needs guardrails — without them, prompt injection, PII leakage, and toxic output are a matter of when, not if. ### Why Guardrails Are Non-Negotiable in Production. Section titled “Why Guardrails Are Non-Negotiable in Production”. Every LLM deployed without guardrails is a liability. The model will eventually generate harmful content, leak sensitive data, or follow a prompt injection attack. Guardrails are the safety layer between your users and the LLM. Every one of these incidents was preventable with standard guardrail patterns: input scanning for PII and sensitive data, output filtering for off-topic or adversarial content, and topic restriction rails to keep the model within its designated scope.",
+      "metadata": {
+        "provider": "tavily",
+        "score": 0.70531887
+      }
+    },
+    {
+      "title": "LLM guardrails: Best practices for deploying LLM apps securely",
+      "url": "https://www.datadoghq.com/blog/llm-guardrails-best-practices/",
+      "snippet": "While safety guardrails are designed to prevent users from being exposed to toxic or off-topic content in outputs (or submitting this kind of material in prompts), security guardrails detect and mitigate prompt injection, data exfiltration, tool misuse, and other kinds of LLM attacks. As we’ve discussed, LLM prompt guardrails should secure your applications against prompt injections, jailbreaking, data and prompt exfiltration, and tool misuse. By filtering and moderating LLM inputs and outputs, ensuring safe response generation, and detecting adversarial user behavior, guardrails can mitigate the impact of prompt injection attacks and other LLM application security risks. Datadog LLM Observability provides out-of-the-box LLM instrumentation as well as AI-powered prompt evaluation to help you monitor your applications’ security in production and evaluate the effectiveness of your guardrails. Datadog is also introducing real-time AI security guardrails through AI Guard, helping secure your AI apps and agents in real time against prompt injection, jailbreaking, tool misuse, and sensitive data exfiltration attacks.",
+      "metadata": {
+        "provider": "tavily",
+        "score": 0.60245985
+      }
+    },
+    {
+      "title": "Best Practices for Building Agents | Part 5 - Guardrails - Arthur AI",
+      "url": "https://www.arthur.ai/blog/best-practices-for-building-agents-guardrails",
+      "snippet": "Best Practices for Building Agents | Part 6: Discovery and Governance | READ HERE. # Best Practices for Building Agents | Part 5 - Guardrails. Welcome to the fifth installment of our series on building reliable AI agents. In Part 4, we covered experiments and supervised evals. Another customer uses a post-LLM hallucination guardrail that catches unsupported claims and automatically feeds them back to the agent for correction before the user ever sees the response. **Pre-LLM guardrails** run before the user's input and assembled context is sent to the model. **Post-LLM guardrails** run after the model returns a response, before that response is acted on or returned to the user. When a guardrail detects a problem with a response, instead of surfacing a failure to the user, the system feeds the flagged issues back to the LLM with a targeted correction prompt: here is what you said, here is what was unsupported, revise your response.",
+      "metadata": {
+        "provider": "tavily",
+        "score": 0.56489134
+      }
+    },
+    {
+      "title": "AI Agents in Production: Monitoring, Guardrails, and Safety ... - TUTAI",
+      "url": "https://tutai.ai/en/blog/ai-agents-production-monitoring-guardrails-safety",
+      "snippet": "Operate AI agents in production with four-layer architecture, Langfuse monitoring, safety guardrails, hallucination prevention, and scaling strategies. This article covers the engineering practices required to move AI agents from prototype to production-grade deployment, focusing on Streamlit for the UI, FastAPI for the API layer, Render for cloud hosting, and Langfuse for monitoring. import streamlit as st import requests st.title(\"AI Agent Playground\") if \"messages\" not in st.session_state: st.session_state.messages = [] for msg in st.session_state.messages: with st.chat_message(msg[\"role\"]): st.markdown(msg[\"content\"]) if prompt := st.chat_input(\"Ask the agent a question\"): st.session_state.messages.append({\"role\": \"user\", \"content\": prompt}) with st.chat_message(\"user\"): st.markdown(prompt) response = requests.post( \"https://your-api.onrender.com/chat\", json={\"message\": prompt, \"session_id\": st.session_state.get(\"session_id\")}, ) reply = response.json().get(\"reply\", \"Error: no response\") st.session_state.messages.append({\"role\": \"assistant\", \"content\": reply}) with st.chat_message(\"assistant\"): st.markdown(reply). Moving AI agents to production requires deliberate engineering across four layers: the user-facing application (Streamlit), the API integration (FastAPI), the agent logic with its guardrails and memory, and the external tools layer. Learn AI agent architectures, the ReAct pattern, multi-agent systems, and production deployment with LangChain, LangGraph, FastAPI, and Langfuse.",
+      "metadata": {
+        "provider": "tavily",
+        "score": 0.45101276
+      }
+    },
+    {
+      "title": "AI Agent Guardrails: Production Guide for 2026 - Authority Partners",
+      "url": "https://authoritypartners.com/insights/ai-agent-guardrails-production-guide-for-2026/",
+      "snippet": "Here is the pragmatic play: drive **AI accuracy** first with retrieval and reasoning techniques that measurably cut hallucinations, then apply **AI guardrails** in layers matched to business risk. **Chain-of-Verification (CoVe):** The agent generates an initial response, asks insightful questions about its answer, fact-checks every query against the original reply, resolves inconsistencies, then produces a validated response. Without guardrails, your agent becomes a data exfiltration risk. Once you’ve determined your risk-based routing strategy, the next architectural decision is timing: when do guardrails run relative to response generation? The agent streams responses directly to the user while guardrails run in parallel in the background. **Latency impact:** Full guardrail latency added to response time (500ms-2+ seconds for three-layer validation). Here is the pragmatic path for 2026: **make agents accurate first, then route risk through layered guardrails with clear performance budgets**. The patterns we’ve covered here – accuracy-first optimization, defense-in-depth guardrails, risk-based routing – work across industries and technical stacks.",
+      "metadata": {
+        "provider": "tavily",
+        "score": 0.3466745
+      }
+    }
+  ],
+  "research_notes": "### Key Facts\n1. Guardrails are essential for the safe deployment of LLM applications, preventing harmful content generation, data leakage, and prompt injection attacks.\n2. There are two types of guardrails: pre-LLM (input validation) and post-LLM (output filtering).\n3. Effective guardrails include input scanning for sensitive data, output filtering for off-topic content, and topic restriction to maintain model focus.\n4. Guardrails can operate in a layered architecture, with different strategies for managing risks associated with AI agents.\n5. The implementation of guardrails can introduce latency, which varies based on the complexity and number of layers involved.\n\n### Evidence\n- According to the AI Guardrails guide, every LLM deployed without guardrails poses a liability, as harmful incidents can occur without preventive measures [1].\n- LLM guardrails are designed to mitigate risks such as prompt injections and data exfiltration by filtering inputs and outputs [2].\n- The use of post-LLM guardrails allows for automatic correction of unsupported claims before they reach the user, enhancing reliability [3].\n- A four-layer architecture for AI agents includes safety guardrails and monitoring, which are crucial for moving from prototype to production [4].\n- The production guide emphasizes an accuracy-first approach, followed by layered guardrails tailored to business risk, with considerations for latency impacts [5].\n\n### Gaps / Uncertainty\n- The specific effectiveness and performance trade-offs of different guardrail configurations (e.g., strict vs. permissive) are not fully detailed.\n- There is limited information on the real-world implementation challenges and user experiences with these guardrails.\n- The exact latency introduced by various guardrail layers is mentioned but lacks specific benchmarks or case studies to illustrate the impact on user experience.",
+  "analysis_notes": "Thesis:\nThe implementation of guardrails is crucial for the safe deployment of LLM applications, as they help mitigate risks associated with harmful content generation, data leakage, and prompt injection attacks.\n\nKey claims:\n1. Guardrails are categorized into pre-LLM (input validation) and post-LLM (output filtering), both of which are essential for managing risks in LLM applications [1][2].\n2. Effective guardrails include strategies such as input scanning for sensitive data, output filtering for off-topic content, and topic restriction to maintain model focus [3].\n3. A layered architecture for guardrails can enhance safety and reliability, allowing for tailored approaches to business risk while transitioning from prototype to production [4].\n4. The implementation of guardrails can introduce latency, which varies based on the complexity and number of layers involved, impacting user experience [5].\n\nTradeoffs:\n- The balance between strictness and permissiveness in guardrail configurations may affect both the effectiveness of risk mitigation and the user experience due to potential latency.\n- More complex guardrail systems may provide better safety but could lead to increased latency, which may deter user engagement.\n\nRisks / failure modes:\n- Without guardrails, LLMs pose significant liabilities, as harmful incidents can occur, leading to reputational damage and legal implications [1].\n- Inadequate guardrail configurations may fail to prevent prompt injections or data exfiltration, undermining the reliability of the LLM [2].\n- The introduction of guardrails may not be seamless, leading to user frustration if latency impacts are not managed effectively.\n\nConfidence level:\nModerate confidence due to gaps in specific effectiveness, performance trade-offs, and real-world implementation challenges related to guardrails.",
+  "final_answer": "### Summary of Production Guardrails for LLM Agents\n\nGuardrails are critical for the safe deployment of large language model (LLM) applications. They help prevent harmful content generation, data leakage, and prompt injection attacks, which can pose significant risks to users and organizations alike [1]. \n\n#### Types of Guardrails\nGuardrails are categorized into two main types:\n1. **Pre-LLM (Input Validation)**: These guardrails focus on scanning inputs for sensitive data and ensuring that the prompts provided to the LLM do not contain harmful or inappropriate content [2].\n2. **Post-LLM (Output Filtering)**: These guardrails filter the outputs generated by the LLM to remove off-topic content and ensure that the responses align with the desired topic and tone [3]. \n\n#### Effective Strategies\nKey strategies for implementing effective guardrails include:\n- Input scanning for sensitive data to prevent data exfiltration.\n- Output filtering to eliminate irrelevant or harmful content.\n- Topic restriction to maintain the focus of the model on relevant subjects [3].\n\n#### Layered Architecture\nA layered architecture for guardrails enhances safety and reliability. This approach allows for tailored strategies that align with specific business risks, especially when transitioning from prototype to production [4]. However, implementing multiple layers may introduce latency, which can impact user experience. The degree of latency depends on the complexity and number of guardrail layers employed [5].\n\n#### Trade-offs and Risks\nThere are notable trade-offs in the configuration of guardrails:\n- Stricter guardrails may provide better safety but could lead to increased latency, potentially diminishing user engagement.\n- Inadequate configurations can fail to prevent prompt injections or data leaks, compromising the reliability of the LLM [2].\n\nWithout guardrails, deploying LLMs poses significant liabilities, as harmful incidents can occur, leading to reputational damage and legal implications [1]. \n\n### Conclusion\nWhile guardrails are essential for the safe deployment of LLM applications, their implementation must be carefully managed to balance effectiveness with user experience. The specific performance trade-offs and real-world implementation challenges remain uncertain, indicating a need for further research and case studies in this area.\n\n### Sources\n1. AI Guardrails — Production LLM Safety Guide (2026)\n2. LLM guardrails: Best practices for deploying LLM apps securely\n3. Best Practices for Building Agents | Part 5 - Guardrails - Arthur AI\n4. AI Agents in Production: Monitoring, Guardrails, and Safety - TUTAI\n5. AI Agent Guardrails: Production Guide for 2026 - Authority Partners",
+  "critic_notes": "**Verdict:** The final answer is largely accurate and well-supported by the provided sources. However, there are some minor issues regarding the clarity of claims and the citation of specific strategies.\n\n**Supported claims:**\n1. Guardrails are critical for the safe deployment of LLM applications, preventing harmful content generation, data leakage, and prompt injection attacks [1].\n2. The categorization of guardrails into pre-LLM (input validation) and post-LLM (output filtering) is correctly stated [2][3].\n3. Effective strategies for guardrails include input scanning for sensitive data, output filtering, and topic restriction [3].\n4. A layered architecture enhances safety and reliability, allowing for tailored strategies aligned with business risks [4].\n5. The implementation of guardrails can introduce latency, which varies based on complexity and number of layers [5].\n6. The risks of deploying LLMs without guardrails are accurately described, including potential reputational damage and legal implications [1].\n\n**Citation issues:**\n- The claim about \"input scanning for sensitive data\" and \"output filtering to eliminate irrelevant or harmful content\" could be more explicitly linked to the sources. While they are supported by the snippets, the specific phrasing used in the answer does not directly match the source language.\n\n**Unsupported or weak claims:**\n- The statement about the \"degree of latency depends on the complexity and number of guardrail layers employed\" is somewhat vague. While it is mentioned that latency can be introduced, specific benchmarks or examples would strengthen this claim.\n\n**Suggested fixes:**\n1. Clarify the connection between the strategies mentioned (input scanning, output filtering, topic restriction) and the sources by using more direct language from the snippets.\n2. Provide more detail or examples regarding the latency introduced by guardrails to enhance the understanding of this claim. Consider mentioning that the latency can range from 500ms to over 2 seconds based on the complexity of the guardrail layers, as noted in the sources.",
+  "agent_results": [
+    {
+      "agent": "supervisor",
+      "content": "researcher",
+      "metadata": {
+        "reason": "research_missing",
+        "iteration": 1
+      }
+    },
+    {
+      "agent": "researcher",
+      "content": "### Key Facts\n1. Guardrails are essential for the safe deployment of LLM applications, preventing harmful content generation, data leakage, and prompt injection attacks.\n2. There are two types of guardrails: pre-LLM (input validation) and post-LLM (output filtering).\n3. Effective guardrails include input scanning for sensitive data, output filtering for off-topic content, and topic restriction to maintain model focus.\n4. Guardrails can operate in a layered architecture, with different strategies for managing risks associated with AI agents.\n5. The implementation of guardrails can introduce latency, which varies based on the complexity and number of layers involved.\n\n### Evidence\n- According to the AI Guardrails guide, every LLM deployed without guardrails poses a liability, as harmful incidents can occur without preventive measures [1].\n- LLM guardrails are designed to mitigate risks such as prompt injections and data exfiltration by filtering inputs and outputs [2].\n- The use of post-LLM guardrails allows for automatic correction of unsupported claims before they reach the user, enhancing reliability [3].\n- A four-layer architecture for AI agents includes safety guardrails and monitoring, which are crucial for moving from prototype to production [4].\n- The production guide emphasizes an accuracy-first approach, followed by layered guardrails tailored to business risk, with considerations for latency impacts [5].\n\n### Gaps / Uncertainty\n- The specific effectiveness and performance trade-offs of different guardrail configurations (e.g., strict vs. permissive) are not fully detailed.\n- There is limited information on the real-world implementation challenges and user experiences with these guardrails.\n- The exact latency introduced by various guardrail layers is mentioned but lacks specific benchmarks or case studies to illustrate the impact on user experience.",
+      "metadata": {
+        "source_count": 5,
+        "input_tokens": 1574,
+        "output_tokens": 356,
+        "total_tokens": 1930,
+        "cost_usd": 0.0004497
+      }
+    },
+    {
+      "agent": "supervisor",
+      "content": "analyst",
+      "metadata": {
+        "reason": "analysis_missing",
+        "iteration": 2
+      }
+    },
+    {
+      "agent": "analyst",
+      "content": "Thesis:\nThe implementation of guardrails is crucial for the safe deployment of LLM applications, as they help mitigate risks associated with harmful content generation, data leakage, and prompt injection attacks.\n\nKey claims:\n1. Guardrails are categorized into pre-LLM (input validation) and post-LLM (output filtering), both of which are essential for managing risks in LLM applications [1][2].\n2. Effective guardrails include strategies such as input scanning for sensitive data, output filtering for off-topic content, and topic restriction to maintain model focus [3].\n3. A layered architecture for guardrails can enhance safety and reliability, allowing for tailored approaches to business risk while transitioning from prototype to production [4].\n4. The implementation of guardrails can introduce latency, which varies based on the complexity and number of layers involved, impacting user experience [5].\n\nTradeoffs:\n- The balance between strictness and permissiveness in guardrail configurations may affect both the effectiveness of risk mitigation and the user experience due to potential latency.\n- More complex guardrail systems may provide better safety but could lead to increased latency, which may deter user engagement.\n\nRisks / failure modes:\n- Without guardrails, LLMs pose significant liabilities, as harmful incidents can occur, leading to reputational damage and legal implications [1].\n- Inadequate guardrail configurations may fail to prevent prompt injections or data exfiltration, undermining the reliability of the LLM [2].\n- The introduction of guardrails may not be seamless, leading to user frustration if latency impacts are not managed effectively.\n\nConfidence level:\nModerate confidence due to gaps in specific effectiveness, performance trade-offs, and real-world implementation challenges related to guardrails.",
+      "metadata": {
+        "input_tokens": 572,
+        "output_tokens": 344,
+        "total_tokens": 916,
+        "cost_usd": 0.0002922
+      }
+    },
+    {
+      "agent": "supervisor",
+      "content": "writer",
+      "metadata": {
+        "reason": "ready_to_write",
+        "iteration": 3
+      }
+    },
+    {
+      "agent": "writer",
+      "content": "### Summary of Production Guardrails for LLM Agents\n\nGuardrails are critical for the safe deployment of large language model (LLM) applications. They help prevent harmful content generation, data leakage, and prompt injection attacks, which can pose significant risks to users and organizations alike [1]. \n\n#### Types of Guardrails\nGuardrails are categorized into two main types:\n1. **Pre-LLM (Input Validation)**: These guardrails focus on scanning inputs for sensitive data and ensuring that the prompts provided to the LLM do not contain harmful or inappropriate content [2].\n2. **Post-LLM (Output Filtering)**: These guardrails filter the outputs generated by the LLM to remove off-topic content and ensure that the responses align with the desired topic and tone [3]. \n\n#### Effective Strategies\nKey strategies for implementing effective guardrails include:\n- Input scanning for sensitive data to prevent data exfiltration.\n- Output filtering to eliminate irrelevant or harmful content.\n- Topic restriction to maintain the focus of the model on relevant subjects [3].\n\n#### Layered Architecture\nA layered architecture for guardrails enhances safety and reliability. This approach allows for tailored strategies that align with specific business risks, especially when transitioning from prototype to production [4]. However, implementing multiple layers may introduce latency, which can impact user experience. The degree of latency depends on the complexity and number of guardrail layers employed [5].\n\n#### Trade-offs and Risks\nThere are notable trade-offs in the configuration of guardrails:\n- Stricter guardrails may provide better safety but could lead to increased latency, potentially diminishing user engagement.\n- Inadequate configurations can fail to prevent prompt injections or data leaks, compromising the reliability of the LLM [2].\n\nWithout guardrails, deploying LLMs poses significant liabilities, as harmful incidents can occur, leading to reputational damage and legal implications [1]. \n\n### Conclusion\nWhile guardrails are essential for the safe deployment of LLM applications, their implementation must be carefully managed to balance effectiveness with user experience. The specific performance trade-offs and real-world implementation challenges remain uncertain, indicating a need for further research and case studies in this area.\n\n### Sources\n1. AI Guardrails — Production LLM Safety Guide (2026)\n2. LLM guardrails: Best practices for deploying LLM apps securely\n3. Best Practices for Building Agents | Part 5 - Guardrails - Arthur AI\n4. AI Agents in Production: Monitoring, Guardrails, and Safety - TUTAI\n5. AI Agent Guardrails: Production Guide for 2026 - Authority Partners",
+      "metadata": {
+        "input_tokens": 1241,
+        "output_tokens": 521,
+        "total_tokens": 1762,
+        "cost_usd": 0.00049875
+      }
+    },
+    {
+      "agent": "supervisor",
+      "content": "critic",
+      "metadata": {
+        "reason": "critic_missing",
+        "iteration": 4
+      }
+    },
+    {
+      "agent": "critic",
+      "content": "**Verdict:** The final answer is largely accurate and well-supported by the provided sources. However, there are some minor issues regarding the clarity of claims and the citation of specific strategies.\n\n**Supported claims:**\n1. Guardrails are critical for the safe deployment of LLM applications, preventing harmful content generation, data leakage, and prompt injection attacks [1].\n2. The categorization of guardrails into pre-LLM (input validation) and post-LLM (output filtering) is correctly stated [2][3].\n3. Effective strategies for guardrails include input scanning for sensitive data, output filtering, and topic restriction [3].\n4. A layered architecture enhances safety and reliability, allowing for tailored strategies aligned with business risks [4].\n5. The implementation of guardrails can introduce latency, which varies based on complexity and number of layers [5].\n6. The risks of deploying LLMs without guardrails are accurately described, including potential reputational damage and legal implications [1].\n\n**Citation issues:**\n- The claim about \"input scanning for sensitive data\" and \"output filtering to eliminate irrelevant or harmful content\" could be more explicitly linked to the sources. While they are supported by the snippets, the specific phrasing used in the answer does not directly match the source language.\n\n**Unsupported or weak claims:**\n- The statement about the \"degree of latency depends on the complexity and number of guardrail layers employed\" is somewhat vague. While it is mentioned that latency can be introduced, specific benchmarks or examples would strengthen this claim.\n\n**Suggested fixes:**\n1. Clarify the connection between the strategies mentioned (input scanning, output filtering, topic restriction) and the sources by using more direct language from the snippets.\n2. Provide more detail or examples regarding the latency introduced by guardrails to enhance the understanding of this claim. Consider mentioning that the latency can range from 500ms to over 2 seconds based on the complexity of the guardrail layers, as noted in the sources.",
+      "metadata": {
+        "citation_coverage": 1.0,
+        "input_tokens": 2835,
+        "output_tokens": 402,
+        "total_tokens": 3237,
+        "cost_usd": 0.00066645
+      }
+    },
+    {
+      "agent": "supervisor",
+      "content": "done",
+      "metadata": {
+        "reason": "final_answer_and_critic_present",
+        "iteration": 5
+      }
+    }
+  ],
+  "trace": [
+    {
+      "name": "workflow.started",
+      "payload": {
+        "graph": {
+          "nodes": [
+            "supervisor",
+            "researcher",
+            "analyst",
+            "writer",
+            "critic",
+            "done"
+          ],
+          "edges": [
+            [
+              "supervisor",
+              "researcher"
+            ],
+            [
+              "supervisor",
+              "analyst"
+            ],
+            [
+              "supervisor",
+              "writer"
+            ],
+            [
+              "supervisor",
+              "critic"
+            ],
+            [
+              "supervisor",
+              "done"
+            ],
+            [
+              "researcher",
+              "supervisor"
+            ],
+            [
+              "analyst",
+              "supervisor"
+            ],
+            [
+              "writer",
+              "supervisor"
+            ],
+            [
+              "critic",
+              "supervisor"
+            ]
+          ],
+          "max_iterations": 6,
+          "timeout_seconds": 60
+        }
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "next_route": "researcher",
+        "reason": "research_missing",
+        "iteration": 1,
+        "errors": []
+      }
+    },
+    {
+      "name": "researcher.completed",
+      "payload": {
+        "source_count": 5,
+        "tokens": 1930,
+        "cost_usd": 0.0004497
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "next_route": "analyst",
+        "reason": "analysis_missing",
+        "iteration": 2,
+        "errors": []
+      }
+    },
+    {
+      "name": "analyst.completed",
+      "payload": {
+        "tokens": 916,
+        "cost_usd": 0.0002922
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "next_route": "writer",
+        "reason": "ready_to_write",
+        "iteration": 3,
+        "errors": []
+      }
+    },
+    {
+      "name": "writer.completed",
+      "payload": {
+        "tokens": 1762,
+        "cost_usd": 0.00049875
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "next_route": "critic",
+        "reason": "critic_missing",
+        "iteration": 4,
+        "errors": []
+      }
+    },
+    {
+      "name": "critic.completed",
+      "payload": {
+        "citation_coverage": 1.0,
+        "tokens": 3237,
+        "cost_usd": 0.00066645
+      }
+    },
+    {
+      "name": "supervisor.route",
+      "payload": {
+        "next_route": "done",
+        "reason": "final_answer_and_critic_present",
+        "iteration": 5,
+        "errors": []
+      }
+    },
+    {
+      "name": "workflow.completed",
+      "payload": {
+        "reason": "supervisor_done"
+      }
+    },
+    {
+      "name": "run_log.written",
+      "payload": {
+        "path": "runs\\multi-agent\\20260506T053802592708Z_summarize-production-guardrails-for-llm-agents.json"
+      }
+    }
+  ],
+  "errors": []
+}
